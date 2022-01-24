@@ -2,11 +2,12 @@ import React from "react";
 import styled from "styled-components";
 
 interface Props {
-  blockString: any;
-  children: any;
+  onClick: () => void;
+  blockString: boolean;
+  header?: string;
 }
 
-const StyledButton: any = styled.button`
+const StyledCard = styled.div`
   ${(props: Props) =>
     props.blockString &&
     `
@@ -15,12 +16,13 @@ const StyledButton: any = styled.button`
     margin: 0 0px;
     min-height: 32px;
     cursor: pointer;
+    border: solid;
     border-width: 0;
-    border-color: #eee;
+    border-color: #c5bbbb;
     border-radius: 4px;
     border-bottom-width: 1px;
     text-align: left;
-    padding: 0 8px;
+    padding: 5px 8px;
     margin-bottom: 8px;
     &:hover {
       background-color: #f9f9f9;
@@ -28,8 +30,17 @@ const StyledButton: any = styled.button`
   `}
 `;
 
-const Button = (props: Props) => {
-  return <StyledButton {...props} />;
+const Card = ({ header, onClick, blockString }: Props) => {
+  return (
+    <StyledCard
+      blockString={blockString}
+      onClick={() => {
+        onClick();
+      }}
+    >
+      {header}
+    </StyledCard>
+  );
 };
 
-export default Button;
+export default Card;
