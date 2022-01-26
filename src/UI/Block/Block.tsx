@@ -1,70 +1,57 @@
 import React from "react";
-import { CardInteface } from "../../types/interfaces";
+import { v4 as uuidv4 } from "uuid";
 import Button from "../Button/Button";
 import Card from "../Card/Card";
 import Flex from "../../components/Flex/Flex";
 import Title from "../Title/Title";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { cardSlice } from "../../store/reducers/CardSlice";
+import { columnSlice } from "../../store/reducers/ColumnSlice";
 
 interface Props {
-  dataBlock: CardInteface[];
-  openCard: any;
+  openCard: (cardId: string) => void;
   titleBlock: string;
-  changeBlockData: any;
-  index: number;
+  blockId: string;
 }
 
-const Block = ({
-  dataBlock,
-  titleBlock,
-  openCard,
-  changeBlockData,
-  index,
-}: Props) => {
-  // props.setFullData(`hello`);
-
-  // const dataColumnNumber = dataCard.column.toString();
-
-  // const addNewCard = (columnNumber: string, newCard: any) => {
-  //   const newDataWithCard = {
-  //     ...dataCard,
-  //     cards: [...dataCard.cards, { ...newCard }],
-  //   };
-  //   localStorage.setItem(columnNumber, JSON.stringify(newDataWithCard));
-  //   setDataCard(newDataWithCard);
-  // };
+const Block = ({ titleBlock, openCard, blockId }: Props) => {
+  const dataCards = useAppSelector((state) => state.cardReducer);
+  const dispatch = useAppDispatch();
+  const { changeTitle } = columnSlice.actions;
+  const { addCard } = cardSlice.actions;
 
   const addNewCard = (newHeader: string) => {
     const newCard = {
-      column: index,
-      commnets: [],
-      description: ``,
       header: newHeader,
-      key: Date.now(),
-      title: titleBlock,
+      columnId: blockId,
+      id: uuidv4(),
+      description: ``,
     };
-    changeBlockData(
-      { title: titleBlock, cards: [...dataBlock, newCard] },
-      index
-    );
+    dispatch(addCard(newCard));
   };
 
   const changeBlockTitle = (newTitle: string) => {
-    changeBlockData({ title: newTitle, cards: dataBlock }, index);
+    const changedTitle = {
+      title: newTitle,
+      id: blockId,
+    };
+    dispatch(changeTitle(changedTitle));
   };
 
   return (
     <Flex block>
       <Title changeBlockTitle={changeBlockTitle}>{titleBlock}</Title>
-      {dataBlock.map((section: CardInteface) => {
-        return (
+      {dataCards
+        .filter((card) => card.columnId === blockId)
+        .map((section) => (
           <Card
-            key={section.key}
+            key={section.id}
             blockString
             header={section.header}
-            onClick={() => openCard({ ...section, title: titleBlock })}
+            onClick={() => openCard(section.id)}
           />
-        );
-      })}
+        ))}
+
       <Button addNewCard={addNewCard} />
     </Flex>
   );

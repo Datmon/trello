@@ -1,15 +1,17 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { CardInteface } from "../../types/interfaces";
+import { v4 as uuidv4 } from "uuid";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { cardSlice } from "../../store/reducers/CardSlice";
+import { commentSlice } from "../../store/reducers/CommentSlice";
+import { ICard, ICardComments } from "../../types/interfaces";
 
 interface Props {
   isVisible: boolean;
   setVisible: (isVisible: boolean) => void;
-  currentCard: CardInteface;
-  changeCardData: any;
+  currentCardId: string;
   currentUser: string | null;
-  deleteCardFromData: any;
 }
 
 const StyledBackround = styled.div`
@@ -155,68 +157,82 @@ const DeleteCommentButton = styled.button`
 `;
 
 export const Modal = ({
-  currentCard,
+  currentCardId,
   setVisible,
   isVisible,
-  changeCardData,
   currentUser,
-  deleteCardFromData,
 }: Props) => {
-  const [newDescription, setNewDescription] = useState<string | undefined>(
-    currentCard.description
+  const dataCard = useAppSelector(
+    (state) =>
+      state.cardReducer.find((card) => card.id === currentCardId) as ICard
   );
-  const [newTitle, setNewTitle] = useState<string | undefined>(
-    currentCard.header
+  const dataComments = useAppSelector(
+    (state) =>
+      state.commentReducer.filter(
+        (comment: ICardComments) => comment.cardId === currentCardId
+      ) as Array<ICardComments>
   );
+
+  const columnTitle =
+    useAppSelector((state) => state.columnReducer).find(
+      (column) => column.id === dataCard.columnId
+    )?.title || `unknown`;
+
+  const dispatch = useAppDispatch();
+
+  const { changeCardData, deleteCard } = cardSlice.actions;
+  const { addComment, deleteComment } = commentSlice.actions;
+
+  const [newDescription, setNewDescription] = useState<string | undefined>(``);
+  const [newTitle, setNewTitle] = useState<string | undefined>(``);
   const [visibleAddComment, setVisibleAddComment] = useState<boolean>(false);
-
   const [newComment, setNewComment] = useState<string | undefined>(``);
-
   const changeCardDescription = (newDesc: string | undefined) => {
-    changeCardData({ ...currentCard, description: newDesc });
+    const newCard: ICard = {
+      columnId: dataCard.columnId,
+      description: newDesc,
+      header: dataCard.header,
+      id: dataCard.id,
+    };
+    dispatch(changeCardData(newCard));
   };
 
-  const changeCardTitle = (newTitleValue: string | undefined) => {
-    changeCardData({ ...currentCard, header: newTitleValue });
-  };
-
-  const deleteComment = (deletedCommentKey: number | string) => {
-    changeCardData({
-      ...currentCard,
-      commnets: currentCard.commnets?.filter(
-        (newComm) => newComm.key !== deletedCommentKey
-      ),
-    });
+  const changeCardTitle = (
+    newTitleValue: string | undefined = `Empty title`
+  ) => {
+    const newCard: ICard = {
+      columnId: dataCard.columnId,
+      description: dataCard.description,
+      header: newTitleValue,
+      id: dataCard.id,
+    };
+    dispatch(changeCardData(newCard));
   };
 
   const addCommnet = (valueNewComment: string | undefined) => {
     if (valueNewComment) {
-      changeCardData({
-        ...currentCard,
-        commnets: [
-          // @ts-ignore
-          ...currentCard.commnets,
-          {
-            author: currentUser,
-            content: valueNewComment,
-            key: Date.now(),
-          },
-        ],
-      });
+      const newCommentCard: ICardComments = {
+        author: currentUser || `anon`,
+        cardId: dataCard.id,
+        columnId: dataCard.columnId,
+        id: uuidv4(),
+        content: valueNewComment,
+      };
+      dispatch(addComment(newCommentCard));
     }
     setNewComment(``);
     setVisibleAddComment(false);
   };
 
-  const deleteCard = (deletedCard: any) => {
+  const deleteCurrentCard = () => {
     setVisible(false);
-    deleteCardFromData(deletedCard);
+    dispatch(deleteCard(dataCard.id));
   };
 
   useEffect(() => {
-    setNewDescription(currentCard.description);
-    setNewTitle(currentCard.header);
-  }, [currentCard]);
+    setNewDescription(dataCard.description);
+    setNewTitle(dataCard.header);
+  }, [currentCardId]);
 
   return (
     <>
@@ -226,7 +242,7 @@ export const Modal = ({
       />
       <StyledModal isVisible={isVisible}>
         <StyledHeader>
-          <DeleteCommentButton onClick={() => deleteCard(currentCard)}>
+          <DeleteCommentButton onClick={() => deleteCurrentCard()}>
             Удалить карточку
           </DeleteCommentButton>
           <StyledTitle
@@ -240,7 +256,7 @@ export const Modal = ({
             }
           />
           <StyledTitleDescription>
-            в колонке {currentCard.title}
+            в колонке {columnTitle}
           </StyledTitleDescription>
         </StyledHeader>
         <StyledDescription
@@ -252,14 +268,14 @@ export const Modal = ({
           onMouseOut={() => changeCardDescription(newDescription)}
         />
         <StyledText>Комментарии:</StyledText>
-        {currentCard.commnets?.map((commnet) => {
+        {dataComments.map((commnet) => {
           return (
-            <div key={commnet.key}>
+            <div key={commnet.id}>
               <StyledCommentHead>
                 <StyledCommentHeadText>{commnet.author}</StyledCommentHeadText>
                 {commnet.author === currentUser && (
                   <DeleteCommentButton
-                    onClick={() => deleteComment(commnet.key)}
+                    onClick={() => dispatch(deleteComment(commnet.id))}
                   >
                     Удалить
                   </DeleteCommentButton>

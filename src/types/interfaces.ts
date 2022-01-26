@@ -1,19 +1,19 @@
-export interface CardInteface {
-  header?: string;
-  description?: string;
-  title: string;
-  key: string | number;
-  column: number;
-  commnets?: [
-    {
-      author: string;
-      content: string;
-      key: string | number;
-    }
-  ];
+export interface ICardComments {
+  columnId: string;
+  cardId: string;
+  id: string;
+  content: string;
+  author: string;
 }
 
-export interface NewBlock {
+export interface ICard {
+  header: string;
+  columnId: string;
+  id: string;
+  description: string | undefined;
+}
+
+export interface ColumnState {
   title: string;
-  cards: CardInteface[];
+  id: string;
 }
