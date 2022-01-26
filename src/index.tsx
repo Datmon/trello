@@ -2,6 +2,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import persistStore from "redux-persist/lib/persistStore";
 import { createGlobalStyle } from "styled-components";
 import App from "./App";
 import NotoBoldWoff from "./assests/fonts/noto-sans-v21-latin-700.woff";
@@ -36,10 +38,14 @@ const Global = createGlobalStyle`
 
 const store = setupStore();
 
+const persistor = persistStore(store);
+
 ReactDOM.render(
   <Provider store={store}>
-    <Global />
-    <App />
+    <PersistGate persistor={persistor}>
+      <Global />
+      <App />
+    </PersistGate>
   </Provider>,
   document.getElementById(`root`)
 );
