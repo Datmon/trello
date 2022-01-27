@@ -175,9 +175,10 @@ export const Modal = ({
   //       (comment: ICardComments) => comment.cardId === currentCardId
   //     ) as Array<ICardComments>
   // );
-  const state = useAppSelector((state) => state.commentReducer);
+  const dataState = useAppSelector((state) => state.commentReducer);
 
-  const dataComments = selectCardComments(state, currentCardId);
+  // @ts-ignore
+  const dataComments = selectCardComments(dataState, currentCardId);
 
   const columnTitle =
     useAppSelector((state) => state.columnReducer).find(
@@ -279,7 +280,7 @@ export const Modal = ({
           onMouseOut={() => changeCardDescription(newDescription)}
         />
         <StyledText>Комментарии:</StyledText>
-        {dataComments.map((commnet) => {
+        {dataComments.map((commnet: ICardComments) => {
           return (
             <div key={commnet.id}>
               <StyledCommentHead>
