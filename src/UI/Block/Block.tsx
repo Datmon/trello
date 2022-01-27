@@ -5,8 +5,8 @@ import Card from "../Card/Card";
 import Flex from "../../components/Flex/Flex";
 import Title from "../Title/Title";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { cardSlice } from "../../store/reducers/CardSlice";
-import { columnSlice } from "../../store/reducers/ColumnSlice";
+import { cardSlice } from "../../store/Slices/CardSlice";
+import { columnSlice } from "../../store/Slices/ColumnSlice";
 
 interface Props {
   openCard: (cardId: string) => void;

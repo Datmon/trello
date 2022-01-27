@@ -9,9 +9,9 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import columnReducer from "./reducers/ColumnSlice";
-import cardReducer from "./reducers/CardSlice";
-import commentReducer from "./reducers/CommentSlice";
+import columnReducer from "./Slices/ColumnSlice";
+import cardReducer from "./Slices/CardSlice";
+import commentReducer from "./Slices/CommentSlice";
 
 const persistConfig = {
   key: `root`,

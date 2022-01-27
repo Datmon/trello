@@ -3,8 +3,11 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { cardSlice } from "../../store/reducers/CardSlice";
-import { commentSlice } from "../../store/reducers/CommentSlice";
+import { cardSlice } from "../../store/Slices/CardSlice";
+import {
+  commentSlice,
+  selectCardComments,
+} from "../../store/Slices/CommentSlice";
 import { ICard, ICardComments } from "../../types/interfaces";
 
 interface Props {
@@ -166,16 +169,19 @@ export const Modal = ({
     (state) =>
       state.cardReducer.find((card) => card.id === currentCardId) as ICard
   );
-  const dataComments = useAppSelector(
-    (state) =>
-      state.commentReducer.filter(
-        (comment: ICardComments) => comment.cardId === currentCardId
-      ) as Array<ICardComments>
-  );
+  // const dataComments = useAppSelector(
+  //   (state) =>
+  //     state.commentReducer.filter(
+  //       (comment: ICardComments) => comment.cardId === currentCardId
+  //     ) as Array<ICardComments>
+  // );
+  const state = useAppSelector((state) => state.commentReducer);
+
+  const dataComments = selectCardComments(state, currentCardId);
 
   const columnTitle =
     useAppSelector((state) => state.columnReducer).find(
-      (column) => column.id === dataCard.columnId
+      (column) => dataCard && column.id === dataCard.columnId
     )?.title || `unknown`;
 
   const dispatch = useAppDispatch();
@@ -230,8 +236,10 @@ export const Modal = ({
   };
 
   useEffect(() => {
-    setNewDescription(dataCard.description);
-    setNewTitle(dataCard.header);
+    if (dataCard) {
+      setNewDescription(dataCard.description);
+      setNewTitle(dataCard.header);
+    }
   }, [currentCardId]);
 
   return (
@@ -242,7 +250,10 @@ export const Modal = ({
       />
       <StyledModal isVisible={isVisible}>
         <StyledHeader>
-          <DeleteCommentButton onClick={() => deleteCurrentCard()}>
+          <DeleteCommentButton
+            type="button"
+            onClick={() => deleteCurrentCard()}
+          >
             Удалить карточку
           </DeleteCommentButton>
           <StyledTitle

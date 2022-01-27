@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ICardComments } from "../../types/interfaces";
 
 const initialState: Array<ICardComments> = [
@@ -18,6 +18,7 @@ const initialState: Array<ICardComments> = [
     author: `Not hello world`,
   },
 ];
+
 export const commentSlice = createSlice({
   name: `comments`,
   initialState,
@@ -42,5 +43,12 @@ export const commentSlice = createSlice({
     },
   },
 });
+
+export const selectCardComments = createSelector(
+  (state: any) => state,
+  (_: any, currentCardId: any) => currentCardId,
+  (state: any, currentCardId: any) =>
+    state.filter((comment: any) => comment.cardId === currentCardId)
+);
 
 export default commentSlice.reducer;

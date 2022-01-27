@@ -1,4 +1,5 @@
 import React, { MutableRefObject, useRef, useState } from "react";
+import { Field, Form } from "react-final-form";
 import styled from "styled-components";
 
 interface Props {
@@ -21,6 +22,23 @@ const StyledAddButton = styled.div<{
   }
 `;
 
+const StyledCloseButton = styled.div<{
+  active: boolean;
+}>`
+  display: ${({ active }) => (active ? `none` : `block`)};
+  width: auto;
+  min-height: 30px;
+  padding: 4px 0 16px;
+  cursor: pointer;
+  padding: 7px;
+  border-radius: 4px;
+  background-color: #ffc5c5;
+  &:hover {
+    background-color: #d7d8dd;
+    color: black;
+  }
+`;
+
 const StyledText = styled.textarea<{
   active: boolean;
 }>`
@@ -37,6 +55,8 @@ const StyledText = styled.textarea<{
   margin-bottom: 2px;
 `;
 
+const StyledForm = styled.form``;
+
 const useFocus = (): [any, () => void] => {
   const htmlElRef: MutableRefObject<any> = useRef(null);
   const setFocus = (): void => {
@@ -48,26 +68,26 @@ const useFocus = (): [any, () => void] => {
 
 const Button = ({ addNewCard }: Props) => {
   const [active, setActive] = useState<boolean>(false);
-  const [newCard, setNewColumn] = useState<string | undefined>();
+  const [newCard, setNewCard] = useState<string | undefined>();
   const [inputRef, setInputFocus] = useFocus();
 
   const onEnterPress = (value: any) => {
     addNewCard(value);
-    setNewColumn(``);
+    setNewCard(``);
     setActive(false);
   };
 
   return (
     <>
-      <StyledText
+      {/* <StyledText
         active={active}
         placeholder="Введите заголовок для этой карточки"
         value={newCard}
         onMouseOut={() => setActive(false)}
-        onChange={(e) => setNewColumn(e.target.value)}
+        onChange={(e) => setNewCard(e.target.value)}
         onKeyDown={(event) => event.key === `Enter` && onEnterPress(newCard)}
         ref={inputRef}
-      />
+      /> */}
       <StyledAddButton
         active={active}
         onClick={setInputFocus}
@@ -75,6 +95,27 @@ const Button = ({ addNewCard }: Props) => {
       >
         + Добавить карторчку
       </StyledAddButton>
+      {active && (
+        <Form
+          onSubmit={(values) => onEnterPress(values.newTitle)}
+          render={({ handleSubmit }) => (
+            <StyledForm onSubmit={handleSubmit}>
+              <Field
+                name="newTitle"
+                component="input"
+                placeholder="Введите имя карточки"
+              />
+              <button type="submit">Добавить</button>
+            </StyledForm>
+          )}
+        />
+      )}
+      <StyledCloseButton
+        active={!active}
+        onClickCapture={() => setActive(false)}
+      >
+        Закрыть
+      </StyledCloseButton>
     </>
   );
 };
