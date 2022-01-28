@@ -45,10 +45,10 @@ export const commentSlice = createSlice({
 });
 
 export const selectCardComments = createSelector(
-  (state: any) => state,
-  (_: any, currentCardId: any) => currentCardId,
-  (state: any, currentCardId: any) =>
-    state.filter((comment: any) => comment.cardId === currentCardId)
+  (state: Array<ICardComments>) => state,
+  (_: any, currentCardId: string) => currentCardId,
+  (state: Array<ICardComments>, currentCardId: string) =>
+    state.filter((comment: ICardComments) => comment.cardId === currentCardId)
 );
 
 export default commentSlice.reducer;
